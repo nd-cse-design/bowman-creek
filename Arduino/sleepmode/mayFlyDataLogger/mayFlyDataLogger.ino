@@ -1,3 +1,4 @@
+// Trying to add a temperature sensor
 //This example sketch puts the Mayfly board into sleep mode.  It wakes up at specific times, records the temperature
 //and battery voltage onto the microSD card, prints the data string to the serial port, and goes back to sleep.
 //
@@ -26,6 +27,7 @@ float batteryvoltage;
 //RTC Interrupt pin
 #define RTC_PIN A7
 #define RTC_INT_PERIOD EveryMinute
+
  
 #define SD_SS_PIN 12
  
@@ -87,14 +89,18 @@ void showTime(uint32_t ts)
 {
   //Retrieve and display the current date/time
   String dateTime = getDateTime();
+  //float temp = getTemp(); 
   Serial.println(dateTime);
-  Serial.println("Hello World!");
+  /*
+  Serial.print("Temperature(degrees F): ");
+  Serial.println(temp);
+  */
 }
  
 void setupTimer()
 {
   
-    //Schedule the wakeup every minute
+  //Schedule the wakeup every minute
   timer.every(1, showTime);
   
   //Instruct the RTCTimer how to get the current time reading
@@ -172,6 +178,19 @@ String getDateTime()
   dt.addToString(dateTimeStr); 
   return dateTimeStr;  
 }
+
+float getTemp(){
+   int reading = analogRead(A0);
+   float voltage = reading*5.0;
+   voltage/=1024.0;
+
+   // Find the temperature in Celsisus
+   float temperatureC = (voltage - 0.5) * 100;
+
+   // converting it to farenheit
+   float temperatureF = (temperatureC * 9.0/5.0) + 32.0;
+   return temperatureF;
+}
  
 uint32_t getNow()
 {
@@ -232,30 +251,20 @@ void logData(String rec)
   //Close the file to save it
   logFile.close();  
 }
- 
+
 String createDataRecord()
 {
   //Create a String type data record in csv format
   //TimeDate, Loggertime,Temp_DS, Diff1, Diff2, boardtemp
   String data = getDateTime();
   data += ",";
+
+  data += currentepochtime;
+  data += ",";
+
+  data += String(getTemp());
   
-    
-   // rtc.convertTemperature();          //convert current temperature into registers
-    // boardtemp = rtc.getTemperature(); //Read temperature sensor value
-    
-    // batterysenseValue = analogRead(batteryPin);
-    // batteryvoltage = (3.3/1023.) * 1.47 * batterysenseValue;
-    
-    data += currentepochtime;
-    data += ",";
- /*
-    addFloatToString(data, boardtemp, 3, 1);    //float   
-    data += ",";  
-    addFloatToString(data, batteryvoltage, 4, 2);
-   */
- 
-    return data;
+  return data;
 }
  
  
