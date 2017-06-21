@@ -1,5 +1,5 @@
 //This example sketch puts the Mayfly board into sleep mode.  It wakes up at specific times, records the temperature
-//and battery voltage onto the microSD card, prints the data string to the serial port, and goes back to sleep.
+//and battery voltage onto the microSD card, prints the data string to the serial port, and goes back to sleep.  This version has code to push data to the XCTU app using a connected XBEE.
 //
  
 #include <Wire.h>
@@ -67,8 +67,6 @@ void setup()
   delay(100);
   pinMode(8, OUTPUT);
   pinMode(9, OUTPUT);
- 
-  greenred4flash();    //blink the LEDs to show the board is on
  
   setupLogFile();
  
@@ -204,19 +202,6 @@ uint32_t getNow()
 {
   currentepochtime = rtc.now().getEpoch();
   return currentepochtime;
-}
- 
-void greenred4flash()
-{
-  for (int i=1; i <= 4; i++){
-  digitalWrite(8, HIGH);   
-  digitalWrite(9, LOW);
-  delay(50);
-  digitalWrite(8, LOW);
-  digitalWrite(9, HIGH);
-  delay(50);
-  }
-  digitalWrite(9, LOW);
 }
  
 //MOISTURE SENSOR CODE NEW_______________________________
