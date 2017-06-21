@@ -1,8 +1,13 @@
 // Working on reading from 7 moisture sensors and setting up sleep mode
+// RTC alarm code url: https://github.com/jarzebski/Arduino-DS3231/blob/master/DS3231_alarm/DS3231_alarm.ino
 #include <avr/sleep.h>
 #include <Wire.h>
 #include <SPI.h>
 #include <SD.h>
+#include <Sodaq_DS3231.h>
+
+Sodaq_DS3231 clock;
+RTCDateTime dt;
 
 //The data log file
 #define FILE_NAME "DataLog.txt"
@@ -69,12 +74,30 @@ void logData(String rec)
  
 void setup() {
   Serial.begin(9600);
+
+  setupLogFile();
+
+  // Initialize DS3231
+  Serial.println("Initialize DS3231");
+  clock.begin();
+
+  // Disarm alarms and clear alarms
+  clock.armAlarm1(false);
+  clock.clearAlarm1();
+
+  // Set Alarm1-Every 1m in each hour
+  clock.setAlarm1(0,0,1, DS3231_MATCH_M);
+
+  checkAlarms();
+  
+  /* Old Stuff
   attachInterrupt(digitalPinToInterrupt(2), wakeUpNow, CHANGE); // interrupt 0 is attached to digital pin 2
   setupLogFile();
   sleepNow();
-  Wire.begin();
+  Wire.begin();*/
 }
 
+/*
 void sleepNow() //put microcontroller to sleep here
 {
   set_sleep_mode(SLEEP_MODE_PWR_DOWN); 
@@ -88,7 +111,7 @@ void sleepNow() //put microcontroller to sleep here
   sleep_disable(); //first thing done after waking up
   detachInterrupt(digitalPinToInterrupt(2)); //disable interrupt so that wakeUpNow
                       //will not be executed during normal running
-}
+}*/
 
 String createDataRecord()
 {
@@ -112,6 +135,20 @@ String createDataRecord()
 }
 
 void loop() {
+  dt = clock.getDateTime();
+
+  if(clock.isAlarm1()){ // if alarm1 has been triggered
+    String dataRec = createDataRecord();  //collect data into a string
+  
+    //Save the data record to the log file
+    logData(dataRec); 
+  }
+  else{
+    // mayfly goes into lowPowerMode
+    LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
+  }
+  
+  /* Old Stuff
   intTime = millis();
   if (intTime%60 == 0 && (mostRecentTime != intTime))  //do this every 60 seconds for 30 minutes
   {
@@ -131,6 +168,6 @@ void loop() {
                       //function will provoke a Serial error otherwise!!
       count = 0;
       sleepNow();     // sleep function called here
-  }
+  }*/
  }
 

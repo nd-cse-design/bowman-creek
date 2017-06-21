@@ -24,7 +24,7 @@ int batterysenseValue = 0;  // variable to store the value coming from the senso
 float batteryvoltage;
  
 //RTC Interrupt pin
-#define RTC_PIN A7
+#define RTC_PIN 10
 #define RTC_INT_PERIOD EveryMinute
  
 //#define SD_SS_PIN 12
@@ -51,7 +51,8 @@ float batteryvoltage;
 int sampleinterval = 1;    //time between samples, in seconds
 
 int samplenum = 1;      // declare the variable "samplenum" and start with 1
-int moisturePin = A0;    // on the Mayfly board, pin A6 is connected to a resistor divider on the battery input
+int analogNum = 0;
+   // on the Mayfly board, pin A6 is connected to a resistor divider on the battery input
 
 double moistureValue = 0;  // variable to store the value coming from the analogRead function
 float moisture;       // the battery voltage as calculated by the formula below
@@ -60,6 +61,8 @@ void setup()
 {
   //Initialise the serial connection
   Serial.begin(57600);
+  Serial1.begin(9600); //Xbee stuff
+  
   rtc.begin();
   delay(100);
   pinMode(8, OUTPUT);
@@ -94,7 +97,10 @@ void loop()
           //Serial.println();
           Serial.print("Data Record: ");
           Serial.println(dataRec);      
-          String dataRec = "";   
+          String dataRec = "";  
+
+          Serial1.print("Data Record: "); //Xbee stuff
+          Serial1.println(dataRec); //Xbee stuff
    
      }
   
@@ -169,6 +175,8 @@ void systemSleep()
  
 void sensorsSleep()
 {
+    //Serial.println(moisture);
+
   //Add any code which your sensors require before sleep
 }
  
@@ -257,13 +265,25 @@ String createDataRecord()
   //Create a String type data record in csv format
   //SampleNumber, Battery
   String data = "";
-  data += "Sample number: ";
-  data += samplenum;           //creates a string called "data", put in the sample number 
-  data += ",  Soil moisture: ";                 //adds a comma between values
-  moistureValue = analogRead(A0);         // reads the analog voltage on the batteryPin, reported in bits
-  Serial.println(moistureValue);
+  data += ", Moistures: ";
+  
+  for (analogNum = 0; analogNum <= 7; analogNum++){ //The 7 sensors being used (A0-A5 and A7)
+   if (analogNum == 6){ //A6 is not used for the sensors
+    analogNum = 7;
+   }
+  moistureValue = analogRead(analogNum); //read soil moisture sensor
+  double voltage =(moistureValue/1023)*3; //conversion to voltage from analog
+  data += "A";
+  data += analogNum;
+  data += ": ";
+  data += moistureValue;
+  data += ", ";
+  //Serial.println(moisture);
+  Serial1.println(moistureValue); //Xbee stuff
+
   double voltage1 = (moistureValue/1023)*3;
- // Serial.println(voltage1);
+  }
+ /* Serial.println(voltage1);
   double vwc;
   if(voltage1 <= 1.1)
   {
@@ -284,8 +304,8 @@ String createDataRecord()
  else vwc = 0;
   //moisture = (3.3/1023.) * 1.47 * moistureValue;      // converts bits into volts (see batterytest sketch for more info)
   data += vwc;     //adds the battery voltage to the data string
-  samplenum++;   //increment the sample number
-  return data;
+  samplenum++;   //increment the sample number */
+  return data; 
 }
  
 static void addFloatToString(String & str, float val, char width, unsigned char precision)
