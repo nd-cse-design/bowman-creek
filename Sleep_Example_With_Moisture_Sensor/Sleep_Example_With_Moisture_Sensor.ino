@@ -71,6 +71,7 @@ void setup()
 
   setupSleep();        //Setup sleep mode
 
+  attachInterrupt(0, wakeISR, LOW);
   //Serial.println("DATA_HEADER");
   //showTime(getNow());
 
@@ -80,12 +81,14 @@ void loop()
 {
   //Update the timer
   timer.update();
-  
+
+  int waketfup = checkXB();
+
   // change "2" to "5" to wake up logger every 5 minutes instead
   if (currentminute % 1 == 0)   {
     dataRec = global_date;
     dataRec += createDataRecord();
-
+    
     //Save the data record to the log file
     logData(dataRec);
 
@@ -93,10 +96,14 @@ void loop()
     //Serial.println();
     Serial.print("Time: ");   // print to Serial Monitor
     Serial1.print("Time: ");  // print to xbee
+    Serial1.println(global_date); // will be able to take this out once data is logged to SD
     // printing logfile to Xbee
     dumpToXB();
+    delay(2000);
     
+      
     Serial.println(dataRec);  // print to Monitor
+    // Serial1.println(dataRec); // print to xbee
     String dataRec = "";
     printVolts();
   }
@@ -107,6 +114,11 @@ void loop()
   systemSleep();
 }
 
+float getVolts(){
+  int sensorValue = analogRead(batteryPin);
+  float voltage = (3.3/1023) * 1.47 * sensorValue;
+  return voltage;
+}
 
 void printVolts(){
   int sensorValue = analogRead(batteryPin);
@@ -350,12 +362,12 @@ void dumpToXB(){
   if(logFile){
     Serial1.println(FILE_NAME);
 
-    // read from the file until there is nothing else in it
+    /* read from the file until there is nothing else in it
     while(logFile.available()){
-       Serial1.print(logFile.read());
+       Serial1.write(logFile.read());
     }
     // close the file
-    logFile.close();
+    logFile.close();*/
   }
   else{
     // if the file didn't open output an error
