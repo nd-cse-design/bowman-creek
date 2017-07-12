@@ -1,13 +1,7 @@
-//This example sketch puts the Mayfly board into sleep mode.  It wakes up at specific times, records the temperature
-<<<<<<< HEAD
-//and battery voltage onto the microSD card, prints the data string to the serial port, and goes back to sleep.  This version has code to push data to the XCTU app using a connected XBEE.
-//
+// This example sketch puts the Mayfly board into sleep mode.  It wakes up at specific times, records the temperature
+// and battery voltage onto the microSD card, prints the data string to the serial port, and goes back to sleep.  This version has code to push data to the XCTU app using a connected XBEE.
+// Trying to add printing of the battery voltage. 
 
-=======
-//and battery voltage onto the microSD card, prints the data string to the serial port, and goes back to sleep.
-//Trying to add printing of the battery voltage. 
- 
->>>>>>> 4afb58c1c89b099474ae5a2f12d41c4e8709f04a
 #include <Wire.h>
 #include <avr/sleep.h>
 #include <avr/wdt.h>
@@ -24,6 +18,7 @@ String dataRec = "";
 int currentminute;
 long currentepochtime = 0;
 float boardtemp;
+int awake;
 
 int batteryPin = A6;    // select the input pin for the potentiometer
 int batterysenseValue = 0;  // variable to store the value coming from the sensor
@@ -49,11 +44,9 @@ int sampleinterval = 1;    //time between samples, in seconds
 
 int samplenum = 1;      // declare the variable "samplenum" and start with 1
 int analogNum = 0;
-<<<<<<< HEAD
-// on the Mayfly board, pin A6 is connected to a resistor divider on the battery input
-=======
+
+// on the Mayfly board, pin A6 is connected to a resistor divider on the battery input=======
    // on the Mayfly board, pin A6 is connected to a resistor divider on the battery input
->>>>>>> 4afb58c1c89b099474ae5a2f12d41c4e8709f04a
 
 int moistureValue = 0;  // variable to store the value coming from the analogRead function
 float moisture;       // the battery voltage as calculated by the formula below
@@ -65,16 +58,13 @@ void setup()
   //Initialise the serial connection
   Serial.begin(57600);
   Serial1.begin(9600); //Xbee stuff
-<<<<<<< HEAD
-
-=======
-  
->>>>>>> 4afb58c1c89b099474ae5a2f12d41c4e8709f04a
   rtc.begin();
   delay(100);
   pinMode(8, OUTPUT);
   pinMode(9, OUTPUT);
 
+  attachInterrupt(0, wakeISR, LOW);
+  
   setupLogFile();
 
   setupTimer();        //Setup timer events
@@ -90,12 +80,9 @@ void loop()
 {
   //Update the timer
   timer.update();
-<<<<<<< HEAD
-
+  
   // change "2" to "5" to wake up logger every 5 minutes instead
   if (currentminute % 1 == 0)   {
-    //Serial.println("Multiple of 2!   Initiating sensor reading and logging data to SDcard....");
-
     dataRec = global_date;
     dataRec += createDataRecord();
 
@@ -106,40 +93,21 @@ void loop()
     //Serial.println();
     Serial.print("Time: ");   // print to Serial Monitor
     Serial1.print("Time: ");  // print to xbee
+    // printing logfile to Xbee
+    dumpToXB();
     
     Serial.println(dataRec);  // print to Monitor
-    Serial1.println(dataRec); // print to xbee
     String dataRec = "";
+    printVolts();
   }
-
-=======
-  if(currentminute % 1 == 0)   // change "2" to "5" to wake up logger every 5 minutes instead
-     {   Serial.println("Multiple of 2!   Initiating sensor reading and logging data to SDcard....");
-          
-          dataRec = createDataRecord();
- 
-          //Save the data record to the log file
-          logData(dataRec);
-    
-          //Echo the data to the serial connection
-          //Serial.println();
-          Serial.print("Data Record: ");
-          Serial.println(dataRec);
-          Serial1.print("Data Record: "); //Xbee stuff
-          Serial1.println(dataRec); //Xbee stuff  
-          String dataRec = "";
-          printVolts();
-     }
   
->>>>>>> 4afb58c1c89b099474ae5a2f12d41c4e8709f04a
   delay(1000);
   
   //Sleep
   systemSleep();
 }
 
-<<<<<<< HEAD
-=======
+
 void printVolts(){
   int sensorValue = analogRead(batteryPin);
   float voltage = (3.3/1023) * 1.47 * sensorValue;
@@ -149,7 +117,6 @@ void printVolts(){
   Serial1.println(voltage);
 }
  
->>>>>>> 4afb58c1c89b099474ae5a2f12d41c4e8709f04a
 void showTime(uint32_t ts)
 {
   //Retrieve and display the current date/time
@@ -175,6 +142,7 @@ void wakeISR()
 
 void setupSleep()
 {
+  awake = checkXB();
   pinMode(RTC_PIN, INPUT_PULLUP);
   PcInt::attachInterrupt(RTC_PIN, wakeISR);
 
@@ -216,12 +184,9 @@ void systemSleep()
 
 void sensorsSleep()
 {
-<<<<<<< HEAD
   //Serial.println(moisture);
-=======
-    //Serial.println(moisture);
->>>>>>> 4afb58c1c89b099474ae5a2f12d41c4e8709f04a
 
+    //Serial.println(moisture);
   //Add any code which your sensors require before sleep
 }
 
@@ -297,7 +262,6 @@ String createDataRecord()
   //Create a String type data record in csv format
   //SampleNumber, Battery
   String data = "";
-<<<<<<< HEAD
   //data += ", Moistures: ";
 
   for (analogNum = 0; analogNum <= 7; analogNum++) { //The 7 sensors being used (A0-A5 and A7)
@@ -338,7 +302,7 @@ String createDataRecord()
     data += vwc;     //adds the battery voltage to the data string
     samplenum++;   //increment the sample number */
   return data;
-=======
+
   data += ", Moistures: ";
   
   for (analogNum = 0; analogNum <= 7; analogNum++){ //The 7 sensors being used (A0-A5 and A7)
@@ -354,7 +318,6 @@ String createDataRecord()
   data += ", ";
   }
   return data; 
->>>>>>> 4afb58c1c89b099474ae5a2f12d41c4e8709f04a
 }
 
 static void addFloatToString(String & str, float val, char width, unsigned char precision)
@@ -362,5 +325,41 @@ static void addFloatToString(String & str, float val, char width, unsigned char 
   char buffer[10];
   dtostrf(val, width, precision, buffer);
   str += buffer;
+}
+
+int checkXB(){
+  char incomingByte;
+  if(Serial1.available() > 0){
+    return 1;
+    incomingByte = Serial1.read();
+    if(incomingByte == 'r' || incomingByte == 'R'){
+      Serial1.println("Hello");
+      return 1;
+    }
+    else{
+      return 0;
+    }
+  }
+  else{
+    return 0;
+  }
+}
+
+void dumpToXB(){
+  File logFile = SD.open(FILE_NAME);
+  if(logFile){
+    Serial1.println(FILE_NAME);
+
+    // read from the file until there is nothing else in it
+    while(logFile.available()){
+       Serial1.print(logFile.read());
+    }
+    // close the file
+    logFile.close();
+  }
+  else{
+    // if the file didn't open output an error
+    Serial1.println("Error opening file");
+  }
 }
 
