@@ -1,4 +1,3 @@
-<<<<<<< HEAD:Sleep_Example_With_Moisture_Sensor/Sleep_Example_With_Moisture_Sensor.ino
 // This example sketch puts the Mayfly board into sleep mode.  It wakes up at specific times, records the temperature
 // and battery voltage onto the microSD card, prints the data string to the serial port, and goes back to sleep.  This version has code to push data to the XCTU app using a connected XBEE.
 // Before running this code run adjust with the specific time and date to be adjusted based upon what the current date is
@@ -6,7 +5,6 @@
 //This example sketch puts the Mayfly board into sleep mode.  It wakes up at specific times, records the temperature
 //and battery voltage onto the microSD card, prints the data string to the serial port, and goes back to sleep.  This version has code to push data to the XCTU app using a connected XBEE.
 //
->>>>>>> 1363b774439fc051951d985d91409fd02bf71889:Store_to_SD_Card/Store_to_SD_Card.ino
 
 #include <Wire.h>
 #include <avr/sleep.h>
@@ -65,23 +63,17 @@ void setup()
   delay(100);
   pinMode(8, OUTPUT);
   pinMode(9, OUTPUT);
-<<<<<<< HEAD:Sleep_Example_With_Moisture_Sensor/Sleep_Example_With_Moisture_Sensor.ino
   
-=======
 
->>>>>>> 1363b774439fc051951d985d91409fd02bf71889:Store_to_SD_Card/Store_to_SD_Card.ino
   setupLogFile();
 
   setupTimer();        //Setup timer events
 
   setupSleep();        //Setup sleep mode
-<<<<<<< HEAD:Sleep_Example_With_Moisture_Sensor/Sleep_Example_With_Moisture_Sensor.ino
-=======
 
   //Serial.println("DATA_HEADER");
   //showTime(getNow());
 
->>>>>>> 1363b774439fc051951d985d91409fd02bf71889:Store_to_SD_Card/Store_to_SD_Card.ino
 }
 
 void loop()
@@ -101,7 +93,6 @@ void loop()
 
     //Echo the data to the serial connection
     Serial1.print("Time: ");  // print to xbee
-<<<<<<< HEAD:Sleep_Example_With_Moisture_Sensor/Sleep_Example_With_Moisture_Sensor.ino
     Serial1.println(global_date); // will be able to take this out once data is logged to SD
     // printing logfile to Xbee
     dumpToXB();
@@ -109,12 +100,10 @@ void loop()
     String dataRec = "";
     /* prints out the voltage */
     printVolts();
-=======
     
     Serial.println(dataRec);  // print to Monitor
     Serial1.println(dataRec); // print to xbee
     String dataRec = "";
->>>>>>> 1363b774439fc051951d985d91409fd02bf71889:Store_to_SD_Card/Store_to_SD_Card.ino
   }
 
   delay(1000);
@@ -123,7 +112,6 @@ void loop()
   systemSleep();
 }
 
-<<<<<<< HEAD:Sleep_Example_With_Moisture_Sensor/Sleep_Example_With_Moisture_Sensor.ino
 float getVolts(){
   int sensorValue = analogRead(batteryPin);
   float voltage = (3.3/1023) * 1.47 * sensorValue;
@@ -137,8 +125,6 @@ void printVolts(){
   Serial1.println(voltage);
 }
  
-=======
->>>>>>> 1363b774439fc051951d985d91409fd02bf71889:Store_to_SD_Card/Store_to_SD_Card.ino
 void showTime(uint32_t ts)
 {
   //Retrieve and display the current date/time
@@ -164,11 +150,8 @@ void wakeISR()
 
 void setupSleep()
 {
-<<<<<<< HEAD:Sleep_Example_With_Moisture_Sensor/Sleep_Example_With_Moisture_Sensor.ino
   attachInterrupt(0, wakeISR, LOW);
 
-=======
->>>>>>> 1363b774439fc051951d985d91409fd02bf71889:Store_to_SD_Card/Store_to_SD_Card.ino
   pinMode(RTC_PIN, INPUT_PULLUP);
   PcInt::attachInterrupt(RTC_PIN, wakeISR);
 
@@ -291,7 +274,6 @@ String createDataRecord()
 {
   //Create a String type data record in csv format
   String data = "";
-<<<<<<< HEAD:Sleep_Example_With_Moisture_Sensor/Sleep_Example_With_Moisture_Sensor.ino
   
   data += ", Moistures: ";
   
@@ -308,7 +290,6 @@ String createDataRecord()
   data += ", ";
   }
   return data; 
-=======
   //data += ", Moistures: ";
 
   for (analogNum = 0; analogNum <= 7; analogNum++) { //The 7 sensors being used (A0-A5 and A7)
@@ -349,7 +330,6 @@ String createDataRecord()
     data += vwc;     //adds the battery voltage to the data string
     samplenum++;   //increment the sample number */
   return data;
->>>>>>> 1363b774439fc051951d985d91409fd02bf71889:Store_to_SD_Card/Store_to_SD_Card.ino
 }
 
 /*
@@ -362,7 +342,6 @@ static void addFloatToString(String & str, float val, char width, unsigned char 
   str += buffer;
 }
 
-<<<<<<< HEAD:Sleep_Example_With_Moisture_Sensor/Sleep_Example_With_Moisture_Sensor.ino
 /*
  * Useless function for now, attachinterrupt disables reading from serial
  */
@@ -405,6 +384,3 @@ void dumpToXB(){
     Serial1.println("Error opening file");
   }
 }
-
-=======
->>>>>>> 1363b774439fc051951d985d91409fd02bf71889:Store_to_SD_Card/Store_to_SD_Card.ino
