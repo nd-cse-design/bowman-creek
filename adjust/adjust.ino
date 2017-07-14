@@ -8,7 +8,7 @@ char weekDay[][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 //year, month, date, hour, min, sec and week-day(starts from 0 and goes to 6)
 //writing any non-existent time-data may interfere with normal operation of the RTC.
 //Take care of week-day also.
-DateTime dt(2017, 07, 12, 11, 26, 0, 3);
+DateTime dt(2017, 07, 13, 14, 01, 0, 4);
 
 
 void setup ()
